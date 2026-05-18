@@ -333,13 +333,16 @@ export async function submitPromotionForm(
   }
 }
 
+const stripDigits = (v: any) =>
+  v ? String(v).replace(/\D/g, "") : v
+
 // TODO: Pass a POJO instead of a form entity here
 export async function setAddresses(currentState: unknown, formData: FormData) {
   try {
     if (!formData) {
       throw new Error("No form data found when setting addresses")
     }
-    const cartId = getCartId()
+    const cartId = await getCartId()
     if (!cartId) {
       throw new Error("No existing cart found when setting addresses")
     }
@@ -349,13 +352,13 @@ export async function setAddresses(currentState: unknown, formData: FormData) {
         first_name: formData.get("shipping_address.first_name"),
         last_name: formData.get("shipping_address.last_name"),
         address_1: formData.get("shipping_address.address_1"),
-        address_2: "",
+        address_2: formData.get("shipping_address.address_2") || "",
         company: formData.get("shipping_address.company"),
-        postal_code: formData.get("shipping_address.postal_code"),
+        postal_code: stripDigits(formData.get("shipping_address.postal_code")),
         city: formData.get("shipping_address.city"),
         country_code: formData.get("shipping_address.country_code"),
         province: formData.get("shipping_address.province"),
-        phone: formData.get("shipping_address.phone"),
+        phone: stripDigits(formData.get("shipping_address.phone")),
       },
       email: formData.get("email"),
     } as any
@@ -368,15 +371,35 @@ export async function setAddresses(currentState: unknown, formData: FormData) {
         first_name: formData.get("billing_address.first_name"),
         last_name: formData.get("billing_address.last_name"),
         address_1: formData.get("billing_address.address_1"),
-        address_2: "",
+        address_2: formData.get("billing_address.address_2") || "",
         company: formData.get("billing_address.company"),
-        postal_code: formData.get("billing_address.postal_code"),
+        postal_code: stripDigits(formData.get("billing_address.postal_code")),
         city: formData.get("billing_address.city"),
         country_code: formData.get("billing_address.country_code"),
         province: formData.get("billing_address.province"),
-        phone: formData.get("billing_address.phone"),
+        phone: stripDigits(formData.get("billing_address.phone")),
       }
     await updateCart(data)
+
+    const tipoPessoa = formData.get("br_tipo_pessoa") as "PF" | "PJ" | null
+    if (tipoPessoa) {
+      const headers = { ...(await getAuthHeaders()) }
+      const brBody = {
+        tipo_pessoa: tipoPessoa,
+        cpf: stripDigits(formData.get("br_cpf")) || null,
+        cnpj: stripDigits(formData.get("br_cnpj")) || null,
+        razao_social: formData.get("br_razao_social") || null,
+        nome_fantasia: formData.get("br_nome_fantasia") || null,
+        inscricao_estadual: formData.get("br_inscricao_estadual") || null,
+        data_nascimento: formData.get("br_data_nascimento") || null,
+        telefone: stripDigits(formData.get("shipping_address.phone")) || null,
+      }
+      await sdk.client.fetch(`/store/carts/${cartId}/br-data`, {
+        method: "POST",
+        body: brBody,
+        headers,
+      })
+    }
   } catch (e: any) {
     return e.message
   }
