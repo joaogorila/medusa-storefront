@@ -1,6 +1,6 @@
 "use client"
 
-import { sdk } from "@lib/config"
+import { lookupCep } from "@lib/data/br"
 import {
   maskBrDate,
   maskBrPhone,
@@ -25,17 +25,6 @@ import React, { useEffect, useMemo, useState } from "react"
 import AddressSelect from "../address-select"
 
 type TipoPessoa = "PF" | "PJ"
-
-type ViaCepResp = {
-  cep?: string
-  logradouro?: string
-  complemento?: string
-  bairro?: string
-  cidade?: string
-  uf?: string
-  ibge?: string
-  message?: string
-}
 
 const ShippingAddress = ({
   customer,
@@ -140,23 +129,25 @@ const ShippingAddress = ({
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
-  const lookupCep = async () => {
+  const handleLookupCep = async () => {
     setCepError(null)
     const cep = onlyDigits(formData["shipping_address.postal_code"])
     if (cep.length !== 8) return
 
     setCepLoading(true)
     try {
-      const data = await sdk.client.fetch<ViaCepResp>(`/store/br/cep/${cep}`, {
-        method: "GET",
-      })
-      if (data?.logradouro || data?.cidade || data?.uf) {
+      const data = await lookupCep(cep)
+      if (data && (data.logradouro || data.cidade || data.uf)) {
         setFormData((prev) => ({
           ...prev,
-          "shipping_address.address_1": data.logradouro || prev["shipping_address.address_1"],
+          "shipping_address.address_1":
+            data.logradouro || prev["shipping_address.address_1"],
           "shipping_address.city": data.cidade || prev["shipping_address.city"],
-          "shipping_address.province": data.uf || prev["shipping_address.province"],
+          "shipping_address.province":
+            data.uf || prev["shipping_address.province"],
         }))
+      } else {
+        setCepError("CEP não encontrado")
       }
     } catch (err: any) {
       setCepError("CEP não encontrado")
@@ -366,7 +357,7 @@ const ShippingAddress = ({
             inputMode="numeric"
             value={formData["shipping_address.postal_code"]}
             onChange={handleMasked("shipping_address.postal_code", maskCEP)}
-            onBlur={lookupCep}
+            onBlur={handleLookupCep}
             required
             data-testid="shipping-postal-code-input"
           />
