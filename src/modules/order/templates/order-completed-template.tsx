@@ -8,6 +8,7 @@ import OnboardingCta from "@modules/order/components/onboarding-cta"
 import OrderDetails from "@modules/order/components/order-details"
 import ShippingDetails from "@modules/order/components/shipping-details"
 import PaymentDetails from "@modules/order/components/payment-details"
+import PixQrCode from "@modules/order/components/pix-qrcode"
 import { HttpTypes } from "@medusajs/types"
 
 type OrderCompletedTemplateProps = {
@@ -21,6 +22,15 @@ export default async function OrderCompletedTemplate({
 
   const isOnboarding = cookies.get("_medusa_onboarding")?.value === "true"
 
+  const payment = (order as any).payment_collections?.[0]?.payments?.[0]
+  const pixData = payment?.data as
+    | {
+        pix_qr_code?: string
+        pix_qr_code_base64?: string
+        pix_ticket_url?: string
+      }
+    | undefined
+
   return (
     <div className="py-6 min-h-[calc(100vh-64px)]">
       <div className="content-container flex flex-col justify-center items-center gap-y-10 max-w-4xl h-full w-full">
@@ -33,12 +43,21 @@ export default async function OrderCompletedTemplate({
             level="h1"
             className="flex flex-col gap-y-3 text-ui-fg-base text-3xl mb-4"
           >
-            <span>Thank you!</span>
-            <span>Your order was placed successfully.</span>
+            <span>Obrigado!</span>
+            <span>Seu pedido foi realizado com sucesso.</span>
           </Heading>
+
+          {pixData && (
+            <PixQrCode
+              qrCode={pixData.pix_qr_code}
+              qrCodeBase64={pixData.pix_qr_code_base64}
+              ticketUrl={pixData.pix_ticket_url}
+            />
+          )}
+
           <OrderDetails order={order} />
           <Heading level="h2" className="flex flex-row text-3xl-regular">
-            Summary
+            Resumo
           </Heading>
           <Items order={order} />
           <CartTotals totals={order} />
