@@ -34,6 +34,17 @@ module.exports = {
           80: "#1F2937",
           90: "#111827",
         },
+        gorila: {
+          orange: "#f59e0b",
+          "orange-hover": "#d97706",
+          "orange-light": "#fbbf24",
+          ink: "#0a0a0a",
+          steel: "#171717",
+          smoke: "#262626",
+          mist: "#404040",
+          pearl: "#f5f5f4",
+          stone: "#e7e5e4",
+        },
       },
       borderRadius: {
         none: "0px",

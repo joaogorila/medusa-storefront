@@ -19,22 +19,41 @@ const StoreTemplate = ({
   const sort = sortBy || "created_at"
 
   return (
-    <div
-      className="flex flex-col small:flex-row small:items-start py-6 content-container"
-      data-testid="category-container"
-    >
-      <RefinementList sortBy={sort} />
-      <div className="w-full">
-        <div className="mb-8 text-2xl-semi">
-          <h1 data-testid="store-page-title">Todos os produtos</h1>
+    <div>
+      {/* Page header */}
+      <div className="bg-gorila-ink text-white py-12">
+        <div className="content-container">
+          <span className="text-xs font-bold uppercase tracking-widest text-gorila-orange">
+            Loja completa
+          </span>
+          <h1
+            className="text-3xl md:text-4xl font-black uppercase mt-2"
+            data-testid="store-page-title"
+          >
+            Todos os produtos
+          </h1>
+          <p className="text-sm text-gorila-mist mt-2 max-w-xl">
+            Mochilas táticas, EDC, iluminação e acessórios. Garantia vitalícia.
+          </p>
         </div>
-        <Suspense fallback={<SkeletonProductGrid />}>
-          <PaginatedProducts
-            sortBy={sort}
-            page={pageNumber}
-            countryCode={countryCode}
-          />
-        </Suspense>
+      </div>
+
+      <div
+        className="content-container py-10 flex flex-col small:flex-row small:items-start gap-8"
+        data-testid="category-container"
+      >
+        <aside className="small:w-60 small:shrink-0">
+          <RefinementList sortBy={sort} />
+        </aside>
+        <div className="w-full">
+          <Suspense fallback={<SkeletonProductGrid />}>
+            <PaginatedProducts
+              sortBy={sort}
+              page={pageNumber}
+              countryCode={countryCode}
+            />
+          </Suspense>
+        </div>
       </div>
     </div>
   )
