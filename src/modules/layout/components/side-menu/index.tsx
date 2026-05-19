@@ -12,10 +12,10 @@ import { HttpTypes } from "@medusajs/types"
 import { Locale } from "@lib/data/locales"
 
 const SideMenuItems = {
-  Home: "/",
-  Store: "/store",
-  Account: "/account",
-  Cart: "/cart",
+  Início: "/",
+  Loja: "/store",
+  "Minha Conta": "/account",
+  Carrinho: "/cart",
 }
 
 type SideMenuProps = {
@@ -40,6 +40,7 @@ const SideMenu = ({ regions, locales, currentLocale }: SideMenuProps) => {
                   className="relative h-full flex items-center transition-all ease-out duration-200 focus:outline-none hover:text-ui-fg-base"
                 >
                   Menu
+
                 </Popover.Button>
               </div>
 

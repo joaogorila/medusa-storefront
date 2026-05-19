@@ -49,7 +49,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 
     const title = productCategory.name + " | Medusa Store"
 
-    const description = productCategory.description ?? `${title} category.`
+    const description = productCategory.description ?? `Categoria ${title}.`
 
     return {
       title: `${title} | Medusa Store`,
