@@ -114,7 +114,7 @@ export default async function ProductPage(props: Props) {
     queryParams: {
       handle: params.handle,
       fields:
-        "*variants,*variants.calculated_price,*images,*categories,+metadata,*tags,*collection,*variants.options",
+        "*variants.calculated_price,+variants.inventory_quantity,*variants.images,+metadata,+tags,*categories",
     } as any,
   }).then(({ response }) => response.products[0])
 
