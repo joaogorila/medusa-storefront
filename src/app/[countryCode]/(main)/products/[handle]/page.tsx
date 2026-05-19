@@ -88,11 +88,11 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   }
 
   return {
-    title: `${product.title} | Medusa Store`,
-    description: `${product.title}`,
+    title: `${product.title} | GorilaShield`,
+    description: product.description || product.title,
     openGraph: {
-      title: `${product.title} | Medusa Store`,
-      description: `${product.title}`,
+      title: `${product.title} | GorilaShield`,
+      description: product.description || product.title,
       images: product.thumbnail ? [product.thumbnail] : [],
     },
   }
@@ -111,7 +111,11 @@ export default async function ProductPage(props: Props) {
 
   const pricedProduct = await listProducts({
     countryCode: params.countryCode,
-    queryParams: { handle: params.handle },
+    queryParams: {
+      handle: params.handle,
+      fields:
+        "*variants,*variants.calculated_price,*images,*categories,+metadata,*tags,*collection,*variants.options",
+    } as any,
   }).then(({ response }) => response.products[0])
 
   const images = getImagesForVariant(pricedProduct, selectedVariantId)
