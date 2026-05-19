@@ -2,6 +2,7 @@ import { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { listProducts } from "@lib/data/products"
 import { getRegion, listRegions } from "@lib/data/regions"
+import { getProductExtras } from "@lib/data/product-extras"
 import ProductTemplate from "@modules/products/templates"
 import { HttpTypes } from "@medusajs/types"
 
@@ -87,13 +88,29 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     notFound()
   }
 
+  const extras = await getProductExtras(handle).catch(() => null)
+  const title = extras?.meta_title || `${product.title} | GorilaShield`
+  const description =
+    extras?.meta_description || product.description || product.title
+
   return {
-    title: `${product.title} | GorilaShield`,
-    description: product.description || product.title,
+    title,
+    description,
+    keywords: extras?.meta_keywords || undefined,
     openGraph: {
-      title: `${product.title} | GorilaShield`,
-      description: product.description || product.title,
+      title,
+      description,
       images: product.thumbnail ? [product.thumbnail] : [],
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: product.thumbnail ? [product.thumbnail] : [],
+    },
+    alternates: {
+      canonical: `/${params.countryCode}/products/${handle}`,
     },
   }
 }

@@ -5,10 +5,14 @@ import ProductActions from "@modules/products/components/product-actions"
 import ProductTabs from "@modules/products/components/product-tabs"
 import RelatedProducts from "@modules/products/components/related-products"
 import ProductInfo from "@modules/products/templates/product-info"
+import ProductExtrasBlock, {
+  ProductJsonLd,
+} from "@modules/products/components/product-extras-block"
 import SkeletonRelatedProducts from "@modules/skeletons/templates/skeleton-related-products"
 import { notFound } from "next/navigation"
 import { HttpTypes } from "@medusajs/types"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import { getProductExtras } from "@lib/data/product-extras"
 
 import ProductActionsWrapper from "./product-actions-wrapper"
 
@@ -32,7 +36,7 @@ const TrustChip = ({
   </div>
 )
 
-const ProductTemplate: React.FC<ProductTemplateProps> = ({
+const ProductTemplate: React.FC<ProductTemplateProps> = async ({
   product,
   region,
   countryCode,
@@ -43,9 +47,27 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
   }
 
   const category = (product as any).categories?.[0]
+  const extras = await getProductExtras(product.handle as string)
+  const variant = (product as any).variants?.[0]
+  const price =
+    variant?.calculated_price?.calculated_amount ??
+    variant?.calculated_price?.original_amount ??
+    0
+  const productUrl = `https://medusa-storefront-delta-smoky.vercel.app/${countryCode}/products/${product.handle}`
 
   return (
     <>
+      <ProductJsonLd
+        product={{
+          title: product.title!,
+          description: product.description || undefined,
+          thumbnail: product.thumbnail || undefined,
+        }}
+        extras={extras}
+        price={price}
+        currency={region.currency_code}
+        url={productUrl}
+      />
       <div className="bg-white">
         <div className="content-container py-6">
           {/* Breadcrumb */}
@@ -175,9 +197,10 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
         </div>
       </div>
 
-      {/* Tabs (descrição completa, especificações, envio) */}
+      {/* Extras + Tabs */}
       <div className="bg-gorila-pearl py-12 border-t border-gorila-stone">
-        <div className="content-container">
+        <div className="content-container space-y-12">
+          <ProductExtrasBlock extras={extras} />
           <ProductTabs product={product} />
         </div>
       </div>
